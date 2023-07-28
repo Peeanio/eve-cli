@@ -165,8 +165,45 @@ func login() {
 	token := response_body.AccessToken
 	expires_at := int64(response_body.ExpiresIn) + now
 	viper.Set("access_token", token)
+	viper.Set("refresh_token", response_body.RefreshToken)
 	viper.Set("expires_at", expires_at)
 	viper.WriteConfig()
-	fmt.Printf("Successfully logged in and saved access token\n")
+	log.Printf("Successfully logged in and saved access token\n")
 
+}
+
+func refresh_token() {
+	clientId := viper.GetString("client_id")
+	refresh_token := viper.GetString("refresh_token")
+	grant_type := "refresh_token"
+	data := url.Values{}
+	data.Set("grant_type", grant_type)
+	data.Set("client_id", clientId)
+	data.Set("refresh_token", refresh_token)
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodPost, "https://login.eveonline.com/v2/oauth/token/",  strings.NewReader(data.Encode()))
+	if err != nil{
+		fmt.Println(err)
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Host", "login.eveonline.com")
+	//calls out to get access token
+	resp, _ := client.Do(req)
+	now := time.Now().Unix()
+	resBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var response_body LoginResponse
+	err = json.Unmarshal(resBody, &response_body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	token := response_body.AccessToken
+	expires_at := int64(response_body.ExpiresIn) + now
+	viper.Set("access_token", token)
+	viper.Set("refresh_token", response_body.RefreshToken)
+	viper.Set("expires_at", expires_at)
+	viper.WriteConfig()
+	//fmt.Printf("Successfully logged in and refreshed saved access token\n")
 }
