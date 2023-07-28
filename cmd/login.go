@@ -110,7 +110,7 @@ func login() {
 		}()
 	case "windows":
 			go func() {
-			cmd := exec.Command("rundll32", URL)
+			cmd := exec.Command("rundll32", "url.dll,FileProtocolHandler", URL)
 			err := cmd.Run()
 			if err != nil {log.Fatal(err)}
 		}()
