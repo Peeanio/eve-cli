@@ -13,13 +13,8 @@ import (
 // characterCmd represents the character command
 var characterCmd = &cobra.Command{
 	Use:   "character",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "interacts with the selected character",
+	Long: `Many API actions require setting a character id to based information off of. This command deals with that. Invoking with no subcommands returns the selected character id`,
 	Run: func(cmd *cobra.Command, args []string) {
 		character_id := viper.GetString("character_id")
 		fmt.Println(character_id)

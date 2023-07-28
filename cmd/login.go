@@ -46,7 +46,7 @@ func init() {
 var loginCmd = &cobra.Command{
   Use:   "login",
   Short: "Login and store a token for EVE API",
-  Long:  `Login and store a token for EVE API long`,
+  Long:  `Login and store a token for EVE API, along with the expiry and refresh token data. returns a success description or api error code`,
   Run: func(cmd *cobra.Command, args []string) {
     check_token()
   },
