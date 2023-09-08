@@ -6,25 +6,27 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 	"github.com/spf13/viper"
 	"github.com/spf13/cobra"
 )
 
 // setCmd represents the set command
-var characterSetCmd = &cobra.Command{
+var scopeSetCmd = &cobra.Command{
 	Use:   "set",
-	Short: "set the active character id in the config file",
-	Long: `set the active character id in the config file. this option is 'character_id'`,
+	Short: "comma separated valid scopes",
+	Long: `set the active scope in the config file. this option is 'scope'`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		viper.Set("character_id", args[0])
+		split_scopes := strings.Split(args[0], ",")
+		viper.Set("scope", split_scopes)
 		viper.WriteConfig()
-		fmt.Println("character_id set to ", args[0])
+		fmt.Println("scope set to ", viper.Get("scope"))
 	},
 }
 
 func init() {
-	characterCmd.AddCommand(characterSetCmd)
+	scopeCmd.AddCommand(scopeSetCmd)
 
 	// Here you will define your flags and configuration settings.
 

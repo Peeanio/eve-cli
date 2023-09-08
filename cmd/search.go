@@ -18,6 +18,7 @@ var searchCmd = &cobra.Command{
 	Use:   "search",
 	Short: "searches for a [1] eve object of the name provided",
 	Long: "When trying to find data or specific information about an object, use search to find it. single search item",
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		getSearch(args[0])
 		refresh_token()
