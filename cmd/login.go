@@ -100,7 +100,10 @@ func login() {
 	//preps login secrets
 	verifier, challenge, state := authorizationURL()
 	clientId := viper.GetString("client_id")
-	URL := fmt.Sprintf("https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=%s&client_id=%s&scope=esi-wallet.read_character_wallet.v1&code_challenge=%s&code_challenge_method=S256&state=%s", REDIRECT, clientId, challenge, state)
+	scope := viper.GetStringSlice("scope")
+	scope_string := strings.Join(scope, "+")
+	fmt.Printf(scope_string)
+	URL := fmt.Sprintf("https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=%s&client_id=%s&scope=%s&code_challenge=%s&code_challenge_method=S256&state=%s", REDIRECT, clientId, scope_string, challenge, state)
 	switch runtime.GOOS {
 	case "linux":
 		go func() {
