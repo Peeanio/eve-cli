@@ -7,17 +7,19 @@ eve-cli is a cli tool to interact with the eve api, to get data about the game. 
 To look at a character's wallet:
 ## Linux
 ```
-#install go first
+#install go first https://go.dev/doc/install
 go build
 ./eve-cli login
+./eve-cli scope set <<scope>>
 ./eve-cli character set <<character id>>
 ./eve-cli wallet
 ```
 ## Windows
 ```
-#install go first
+#install go first https://go.dev/doc/install
 go build
 .\eve-cli.exe login
+.\eve-cli scope set <<scope>>
 .\eve-cli.exe character set <<character id>>
 .\eve-cli.exe wallet
 ```
