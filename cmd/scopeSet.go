@@ -7,6 +7,7 @@ package cmd
 import (
 	"fmt"
 	"strings"
+	"os"
 	"github.com/spf13/viper"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +21,10 @@ var scopeSetCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		split_scopes := strings.Split(args[0], ",")
 		viper.Set("scope", split_scopes)
-		viper.WriteConfig()
+		err := viper.WriteConfig()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Write config failed:", err)
+		}
 		fmt.Println("scope set to ", viper.Get("scope"))
 	},
 }

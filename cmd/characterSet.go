@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 // setCmd represents the set command
@@ -18,7 +19,10 @@ var characterSetCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		viper.Set("character_id", args[0])
-		viper.WriteConfig()
+		err := viper.WriteConfig()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Write config failed: ", err)
+		}
 		fmt.Println("character_id set to ", args[0])
 	},
 }

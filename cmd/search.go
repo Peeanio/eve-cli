@@ -6,7 +6,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"github.com/spf13/viper"
@@ -58,7 +58,7 @@ func getSearch(search_string string) {
 	}
 	req.URL.RawQuery = q.Encode()
 		resp, _ := client.Do(req)
-	resBody, err := ioutil.ReadAll(resp.Body)
+	resBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("client: could not read response body: %s\n", err)
 		log.Fatal(err)

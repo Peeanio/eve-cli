@@ -11,15 +11,14 @@ import (
 	"encoding/base64"
 	"io"
 	"net/http"
-	//"net/http/httputil"
 	"net/url"
 	"strings"
 	"os/exec"
 	"log"
-	"io/ioutil"
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"runtime"
 	"time"
 	"github.com/spf13/cobra"
@@ -66,15 +65,18 @@ func authorizationURL() (string, string, string) {
 	//generates and returns secure session vars
 	codeVerifier, verifierErr := randomBytesInHex(32) // 64 character string here
 	if verifierErr != nil {
-		fmt.Errorf("Could not create a code verifier: %v", verifierErr)
+		fmt.Fprintln(os.Stderr, "Could not create a code verifier:", verifierErr)
 	}
 	sha2 := sha256.New()
-	io.WriteString(sha2, codeVerifier)
+	_, err := io.WriteString(sha2, codeVerifier)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not write string", err)
+	}
 	codeChallenge := base64.RawURLEncoding.EncodeToString(sha2.Sum(nil))
 
 	state, stateErr := randomBytesInHex(24)
 	if stateErr != nil {
-		fmt.Errorf("Could not generate random state: %v", stateErr)
+		fmt.Fprintln(os.Stderr, "Could not generate random state:", stateErr)
 	}
 	return codeVerifier, codeChallenge, state
 }
@@ -102,7 +104,7 @@ func login() {
 	clientId := viper.GetString("client_id")
 	scope := viper.GetStringSlice("scope")
 	scope_string := strings.Join(scope, "+")
-	fmt.Printf(scope_string)
+	fmt.Println(scope_string)
 	URL := fmt.Sprintf("https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=%s&client_id=%s&scope=%s&code_challenge=%s&code_challenge_method=S256&state=%s", REDIRECT, clientId, scope_string, challenge, state)
 	switch runtime.GOOS {
 	case "linux":
@@ -132,7 +134,10 @@ func login() {
 	http.HandleFunc("/oauth/redirect", func(w http.ResponseWriter, r *http.Request) {
 		code = r.URL.Query().Get("code")
 		state = r.URL.Query().Get("state")
-		io.WriteString(w, "Authorized, you can close this page\n")
+		_, err := io.WriteString(w, "Authorized, you can close this page\n")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Could not write string", err)
+		}
 		//shuts down http server, continues process
 		go srv.Shutdown(context.Background())
 	})
@@ -156,7 +161,7 @@ func login() {
 	//calls out to get access token
 	resp, _ := client.Do(req)
 	now := time.Now().Unix()
-	resBody, err := ioutil.ReadAll(resp.Body)
+	resBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -170,7 +175,10 @@ func login() {
 	viper.Set("access_token", token)
 	viper.Set("refresh_token", response_body.RefreshToken)
 	viper.Set("expires_at", expires_at)
-	viper.WriteConfig()
+	err = viper.WriteConfig()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Write config failed:", err)
+	}
 	log.Printf("Successfully logged in and saved access token\n")
 
 }
@@ -193,7 +201,7 @@ func refresh_token() {
 	//calls out to get access token
 	resp, _ := client.Do(req)
 	now := time.Now().Unix()
-	resBody, err := ioutil.ReadAll(resp.Body)
+	resBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -207,6 +215,9 @@ func refresh_token() {
 	viper.Set("access_token", token)
 	viper.Set("refresh_token", response_body.RefreshToken)
 	viper.Set("expires_at", expires_at)
-	viper.WriteConfig()
+	err = viper.WriteConfig()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Write config failed:", err)
+	}
 	//fmt.Printf("Successfully logged in and refreshed saved access token\n")
 }
